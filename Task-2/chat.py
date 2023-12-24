@@ -27,16 +27,12 @@ model.load_state_dict(model_state)
 model.eval()
 
 bot_name ="Vardhaman bot"
-print("Let's chat! type 'quit' to exit")
 
-while True:
-    sent = input('You:')
-    if sent =="quit":
-        break
-    sent = tokenize(sent)
+def get_response(msg):
+    sent = tokenize(msg)
     X = bag_of_words(sent,all_words)
     X = X.reshape(1,X.shape[0])
-    X = torch.from_numpy(X)
+    X = torch.from_numpy(X).to(device)
     
     output = model(X)
     _,predicted = torch.max(output,dim=1)
@@ -48,6 +44,16 @@ while True:
     if prob.item() > 0.75:
         for intent in intents['intents']:
             if tag == intent['tag']:
-                print(f"{bot_name}:{random.choice(intent['responses'])}")
-    else:
-        print(f'{bot_name}: I do not understand....')
+                return random.choice(intent['responses'])
+    return f'{bot_name} I do not understand'
+
+
+if __name__ == "__main__":
+    print("Let's chat! (type 'quit' to exit)")
+    
+    while True:
+        sentance = input("You: ")
+        if sentance == 'quit':
+            break
+        resp = get_response(sentance)
+        print(resp)
